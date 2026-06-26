@@ -35,9 +35,8 @@ export default function LoginPage() {
       }
     } catch (err: unknown) {
       const msg =
-        err instanceof Error
-          ? err.message
-          : 'Anmeldung fehlgeschlagen. Bitte prüfen Sie Ihre Zugangsdaten.'
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Anmeldung fehlgeschlagen. Bitte prüfen Sie Ihre Zugangsdaten.'
       setError(msg)
     } finally {
       setLoading(false)
@@ -77,6 +76,12 @@ export default function LoginPage() {
               required
               autoComplete="current-password"
             />
+
+            <p className="text-right text-sm">
+              <Link to="/forgot-password" className="text-blue-400 hover:text-blue-300">
+                Passwort vergessen?
+              </Link>
+            </p>
 
             {error && (
               <div className="rounded-lg border border-red-800/60 bg-red-900/20 px-4 py-3 text-sm text-red-400">

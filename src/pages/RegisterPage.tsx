@@ -14,7 +14,6 @@ export default function RegisterPage() {
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -31,39 +30,16 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
-      const { needsConfirmation } = await signUp(email, password)
-      if (needsConfirmation) {
-        setNeedsConfirmation(true)
-      } else {
-        navigate('/onboarding', { replace: true })
-      }
+      await signUp(email, password)
+      navigate('/onboarding', { replace: true })
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.'
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.'
       setError(msg)
     } finally {
       setLoading(false)
     }
-  }
-
-  if (needsConfirmation) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0d1117] px-4">
-        <div className="w-full max-w-sm rounded-xl border border-[#2d3447] bg-[#1c2333] p-8 text-center">
-          <div className="mb-4 text-4xl">✉️</div>
-          <h2 className="mb-3 text-lg font-semibold text-[#e2e8f0]">
-            Bitte bestätigen Sie Ihre E-Mail
-          </h2>
-          <p className="mb-6 text-sm text-[#8b98a9]">
-            Wir haben eine Bestätigungs-E-Mail an <strong className="text-[#e2e8f0]">{email}</strong>{' '}
-            gesendet. Klicken Sie auf den Link in der E-Mail um fortzufahren.
-          </p>
-          <Link to="/login" className="text-sm text-blue-400 hover:text-blue-300">
-            Zurück zur Anmeldung
-          </Link>
-        </div>
-      </div>
-    )
   }
 
   return (
